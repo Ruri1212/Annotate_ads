@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import MUIProvider from './providers/MUIProvider';
 
 export const metadata: Metadata = {
   title: '広告アノテーションツール',
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="min-h-screen bg-gray-50">
-        <main className="container mx-auto px-4 py-8">
-          {children}
-        </main>
+        <MUIProvider>
+          <main className="container mx-auto px-4 py-8">
+            {children}
+          </main>
+        </MUIProvider>
       </body>
     </html>
   );
