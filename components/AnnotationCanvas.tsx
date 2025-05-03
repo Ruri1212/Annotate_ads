@@ -1,44 +1,43 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, MouseEvent } from 'react';
 import Image from 'next/image';
 
-interface Region {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+interface Annotation {
+  bbox: [number, number, number, number]; // [x, y, width, height]
   area: number;
+  category_id: number | null;
 }
 
 interface AnnotationCanvasProps {
   imageSrc: string | null;
   onRegionSelected: (region: { x: number, y: number, width: number, height: number, area: number }) => void;
+  selectedLabel: number | null;
+  onAnnotationAdded: (annotation: Annotation) => void;
+  annotations: Annotation[];
 }
 
-export const AnnotationCanvas = ({ imageSrc, onRegionSelected }: AnnotationCanvasProps) => {
+export const AnnotationCanvas = ({ 
+  imageSrc, 
+  onRegionSelected, 
+  selectedLabel,
+  onAnnotationAdded,
+  annotations = []
+}: AnnotationCanvasProps) => {
   const [imageMetadata, setImageMetadata] = useState<{ width: number, height: number } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
-  // 領域選択関連の状態
+  // 矩形選択のための状態
+  const canvasRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
-  const [currentRegion, setCurrentRegion] = useState<{ startX: number, startY: number, endX: number, endY: number } | null>(null);
-  const [selectedRegions, setSelectedRegions] = useState<Region[]>([]);
-  const [activeRegion, setActiveRegion] = useState<string | null>(null);
-  
-  // コンテナの参照を取得
-  const containerRef = useRef<HTMLDivElement>(null);
-  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const [startPoint, setStartPoint] = useState<{ x: number, y: number } | null>(null);
+  const [currentRect, setCurrentRect] = useState<{ x: number, y: number, width: number, height: number } | null>(null);
   
   // 画像が選択されたときにメタデータを取得
   useEffect(() => {
     if (!imageSrc) {
       setImageMetadata(null);
-      // 画像が変わったら選択領域をリセット
-      setSelectedRegions([]);
-      setCurrentRegion(null);
       return;
     }
     
@@ -103,123 +102,105 @@ export const AnnotationCanvas = ({ imageSrc, onRegionSelected }: AnnotationCanva
     
     return { width: `${width}px`, height: `${height}px` };
   };
-  
-  // マウスダウン時の処理
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageContainerRef.current || !imageSrc) return;
+
+  // マウスイベントハンドラー
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!canvasRef.current) return;
     
-    // 画像コンテナの位置を取得
-    const rect = imageContainerRef.current.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    // マウスの位置を取得して、相対座標に変換
-    const startX = e.clientX - rect.left;
-    const startY = e.clientY - rect.top;
-    
-    // 描画開始状態にする
     setIsDrawing(true);
-    setCurrentRegion({
-      startX,
-      startY,
-      endX: startX,
-      endY: startY
-    });
+    setStartPoint({ x, y });
+    setCurrentRect(null);
   };
   
-  // マウス移動時の処理
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDrawing || !currentRegion || !imageContainerRef.current) return;
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDrawing || !startPoint || !canvasRef.current) return;
     
-    // 画像コンテナの位置を取得
-    const rect = imageContainerRef.current.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    // マウスの位置を取得して、相対座標に変換
-    const endX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    const endY = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+    const width = Math.abs(x - startPoint.x);
+    const height = Math.abs(y - startPoint.y);
     
-    // 現在の選択領域を更新
-    setCurrentRegion({
-      ...currentRegion,
-      endX,
-      endY
-    });
+    // 選択開始点からの相対位置に基づいて矩形の左上座標を計算
+    const rectX = x < startPoint.x ? x : startPoint.x;
+    const rectY = y < startPoint.y ? y : startPoint.y;
+    
+    setCurrentRect({ x: rectX, y: rectY, width, height });
   };
   
-  // マウスアップ時の処理
   const handleMouseUp = () => {
-    if (!isDrawing || !currentRegion) return;
-    
-    // 描画終了状態にする
-    setIsDrawing(false);
-    
-    // 領域の座標を計算
-    const x = Math.min(currentRegion.startX, currentRegion.endX);
-    const y = Math.min(currentRegion.startY, currentRegion.endY);
-    const width = Math.abs(currentRegion.endX - currentRegion.startX);
-    const height = Math.abs(currentRegion.endY - currentRegion.startY);
-    
-    // 領域の面積を計算
-    const area = width * height;
-    
-    // 有効な領域が選択された場合のみ追加
-    if (width > 5 && height > 5) {
-      const newRegion: Region = {
-        id: `region-${Date.now()}`,
-        x,
-        y,
-        width,
-        height,
-        area
-      };
-      
-      // 領域を追加
-      setSelectedRegions(prev => [...prev, newRegion]);
-      
-      // アクティブな領域として設定
-      setActiveRegion(newRegion.id);
-      
-      // 親コンポーネントに選択領域を通知
-      onRegionSelected(newRegion);
+    if (!isDrawing || !currentRect) {
+      setIsDrawing(false);
+      return;
     }
     
-    // 現在の領域をリセット
-    setCurrentRegion(null);
-  };
-  
-  // 領域クリック時の処理
-  const handleRegionClick = (region: Region) => {
-    // アクティブな領域として設定
-    setActiveRegion(region.id);
+    // 矩形の面積が小さすぎる場合は無視
+    if (currentRect.width < 5 || currentRect.height < 5) {
+      setIsDrawing(false);
+      setCurrentRect(null);
+      return;
+    }
     
     // 親コンポーネントに選択領域を通知
-    onRegionSelected(region);
-  };
-  
-  // 領域削除時の処理
-  const handleRegionDelete = (e: React.MouseEvent, regionId: string) => {
-    e.stopPropagation();
+    const area = currentRect.width * currentRect.height;
+    onRegionSelected({
+      x: currentRect.x,
+      y: currentRect.y,
+      width: currentRect.width,
+      height: currentRect.height,
+      area
+    });
     
-    // 領域を削除
-    setSelectedRegions(prev => prev.filter(region => region.id !== regionId));
-    
-    // アクティブな領域をリセット
-    if (activeRegion === regionId) {
-      setActiveRegion(null);
+    // 選択されたラベルがある場合、アノテーションを追加
+    if (selectedLabel) {
+      const newAnnotation: Annotation = {
+        bbox: [currentRect.x, currentRect.y, currentRect.width, currentRect.height],
+        area,
+        category_id: selectedLabel
+      };
+      
+      onAnnotationAdded(newAnnotation);
     }
+    
+    setIsDrawing(false);
   };
   
-  // 描画領域のスタイルを計算
-  const getRegionStyle = (startX: number, startY: number, endX: number, endY: number) => {
-    const x = Math.min(startX, endX);
-    const y = Math.min(startY, endY);
-    const width = Math.abs(endX - startX);
-    const height = Math.abs(endY - startY);
-    
-    return {
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${width}px`,
-      height: `${height}px`
+  // 描画中のキャンセル（例：Escキー）
+  const cancelDrawing = () => {
+    setIsDrawing(false);
+    setCurrentRect(null);
+  };
+  
+  // Escキーでキャンセル
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        cancelDrawing();
+      }
     };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+  
+  // ラベルごとの色を取得
+  const getLabelColor = (categoryId: number) => {
+    const colors = {
+      1: 'rgba(255, 0, 0, 0.3)',     // Logo - 赤
+      2: 'rgba(0, 0, 255, 0.3)',     // Text - 青
+      3: 'rgba(0, 255, 0, 0.3)',     // Background - 緑
+      4: 'rgba(255, 255, 0, 0.3)',   // Symbol Element - 黄
+      5: 'rgba(255, 0, 255, 0.3)'    // Emphasized Text - マゼンタ
+    };
+    
+    return colors[categoryId as keyof typeof colors] || 'rgba(128, 128, 128, 0.3)';
   };
   
   const dimensions = calculateDimensions();
@@ -242,13 +223,13 @@ export const AnnotationCanvas = ({ imageSrc, onRegionSelected }: AnnotationCanva
         
         {imageSrc && !loading && !error ? (
           <div 
-            ref={imageContainerRef}
-            className="relative bg-white border shadow-sm" 
+            ref={canvasRef}
+            className="relative bg-white border shadow-sm cursor-crosshair" 
             style={dimensions}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onMouseLeave={() => setIsDrawing(false)}
           >
             <Image
               src={imageSrc}
@@ -256,41 +237,43 @@ export const AnnotationCanvas = ({ imageSrc, onRegionSelected }: AnnotationCanva
               fill
               style={{ objectFit: 'contain' }}
               sizes={`(max-width: 800px) 100vw, 800px`}
-              priority
             />
             
-            {/* 選択中の領域 */}
-            {currentRegion && (
-              <div 
-                className="absolute border-2 border-blue-500 bg-blue-500 bg-opacity-20 pointer-events-none"
-                style={getRegionStyle(currentRegion.startX, currentRegion.startY, currentRegion.endX, currentRegion.endY)}
-              />
-            )}
-            
-            {/* 選択済みの領域 */}
-            {selectedRegions.map(region => (
-              <div 
-                key={region.id}
-                className={`absolute border-2 ${
-                  activeRegion === region.id ? 'border-yellow-500' : 'border-green-500'
-                } bg-green-500 bg-opacity-10 cursor-pointer group`}
+            {/* 既存のアノテーション表示 */}
+            {annotations.map((annotation, index) => (
+              <div
+                key={index}
+                className="absolute border-2 pointer-events-none"
                 style={{
-                  left: `${region.x}px`,
-                  top: `${region.y}px`,
-                  width: `${region.width}px`,
-                  height: `${region.height}px`
+                  left: `${annotation.bbox[0]}px`,
+                  top: `${annotation.bbox[1]}px`,
+                  width: `${annotation.bbox[2]}px`,
+                  height: `${annotation.bbox[3]}px`,
+                  backgroundColor: annotation.category_id ? getLabelColor(annotation.category_id) : 'transparent',
+                  borderColor: annotation.category_id ? getLabelColor(annotation.category_id).replace('0.3', '0.7') : 'gray'
                 }}
-                onClick={() => handleRegionClick(region)}
               >
-                {/* 削除ボタン */}
-                <button
-                  className="absolute -right-2 -top-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => handleRegionDelete(e, region.id)}
-                >
-                  ×
-                </button>
+                {annotation.category_id && (
+                  <span className="absolute top-0 left-0 bg-white text-xs px-1 border">
+                    ID: {annotation.category_id}
+                  </span>
+                )}
               </div>
             ))}
+            
+            {/* 現在描画中の矩形 */}
+            {currentRect && (
+              <div
+                className="absolute border-2 border-dashed border-blue-500 pointer-events-none"
+                style={{
+                  left: `${currentRect.x}px`,
+                  top: `${currentRect.y}px`,
+                  width: `${currentRect.width}px`,
+                  height: `${currentRect.height}px`,
+                  backgroundColor: selectedLabel ? getLabelColor(selectedLabel) : 'rgba(0, 0, 255, 0.1)'
+                }}
+              />
+            )}
           </div>
         ) : !loading && !error && (
           <p className="text-gray-500">左側から画像を選択してください</p>
@@ -303,38 +286,10 @@ export const AnnotationCanvas = ({ imageSrc, onRegionSelected }: AnnotationCanva
         </div>
       )}
       
-      {/* 選択された領域の一覧 */}
-      {selectedRegions.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">選択済み領域 ({selectedRegions.length})</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {selectedRegions.map(region => (
-              <div 
-                key={region.id}
-                className={`p-2 border rounded text-sm ${
-                  activeRegion === region.id ? 'bg-yellow-50 border-yellow-500' : 'bg-white'
-                } cursor-pointer`}
-                onClick={() => handleRegionClick(region)}
-              >
-                <div className="flex justify-between mb-1">
-                  <span className="font-semibold">領域 #{region.id.split('-')[1]}</span>
-                  <button 
-                    className="text-red-500 hover:text-red-700"
-                    onClick={(e) => handleRegionDelete(e, region.id)}
-                  >
-                    削除
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-1 text-xs">
-                  <div>X: {Math.round(region.x)}</div>
-                  <div>Y: {Math.round(region.y)}</div>
-                  <div>幅: {Math.round(region.width)}</div>
-                  <div>高さ: {Math.round(region.height)}</div>
-                  <div className="col-span-2">面積: {Math.round(region.area)} px²</div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {selectedLabel && (
+        <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+          <p className="text-sm">選択中のラベル: {selectedLabel}</p>
+          <p className="text-xs text-gray-600">画像上でドラッグして領域を選択してください</p>
         </div>
       )}
     </div>
