@@ -93,6 +93,43 @@
         "category_id": 4,
         "image_id": 3
       }
+    ],
+    [
+      {
+        "area": 35476,
+        "bbox": [
+          73.29261779785156,
+          17.0369873046875,
+          362,
+          98
+        ],
+        "category_id": 2,
+        "image_id": 4
+      }
+    ],
+    [
+      {
+        "area": 17355,
+        "bbox": [
+          171.29261779785156,
+          278.3096618652344,
+          195,
+          89
+        ],
+        "category_id": 2,
+        "image_id": 5
+      },
+      {
+        "area": 5775,
+        "bbox": [
+          126.29261779785156,
+          214.30966186523438,
+          77,
+          75
+        ],
+        "category_id": 1,
+        "image_id": 5
+      }
     ]
   ],
   "images": [
@@ -113,6 +150,18 @@
       "height": 600,
       "width": 800,
       "id": 3
+    },
+    {
+      "file_name": "many_beer.jpg",
+      "height": 600,
+      "width": 800,
+      "id": 4
+    },
+    {
+      "file_name": "mattya.jpg",
+      "height": 600,
+      "width": 800,
+      "id": 5
     }
   ],
   "categories": [
