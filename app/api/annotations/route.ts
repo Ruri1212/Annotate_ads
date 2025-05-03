@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             )
         }
+        console.log("Received annotations:", annotations)
+        console.log("Received imageIds:", imageIds)
 
         // 画像メタデータを取得
         const imageMetadataPromises = imageIds.map(
@@ -124,10 +126,6 @@ export async function POST(request: NextRequest) {
             filePath: "/annotations/annotation_data.json",
         })
     } catch (error) {
-        console.error(
-            "アノテーションデータの保存中にエラーが発生しました:",
-            error
-        )
         return NextResponse.json(
             { error: "アノテーションデータの保存中にエラーが発生しました" },
             { status: 500 }
@@ -169,10 +167,6 @@ export async function GET() {
 
         return NextResponse.json(annotationData)
     } catch (error) {
-        console.error(
-            "アノテーションデータの取得中にエラーが発生しました:",
-            error
-        )
         return NextResponse.json(
             { error: "アノテーションデータの取得中にエラーが発生しました" },
             { status: 500 }

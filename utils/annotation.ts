@@ -81,6 +81,41 @@ export const calculateImageDimensions = (
 }
 
 /**
+ * アノテーションデータをサーバーに保存する
+ */
+export const saveAnnotationsData = async (annotations: {
+    [key: string]: Annotation[]
+}) => {
+    // 画像IDごとにグループ化されたアノテーションを配列に変換
+    const imageIds = Object.keys(annotations)
+    const annotationsArray = imageIds.map(
+        (imageId) => annotations[imageId] || []
+    )
+
+    try {
+        const response = await fetch("/api/annotations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                annotations: annotationsArray,
+                imageIds: imageIds,
+            }),
+        })
+
+        if (!response.ok) {
+            throw new Error("アノテーションの保存に失敗しました")
+        }
+
+        const result = await response.json()
+        return result
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
  * 保存されたアノテーションデータを読み込む
  */
 export const loadAnnotationsData = async () => {

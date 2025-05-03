@@ -1,8 +1,8 @@
-import { Annotation } from "@/types/annotation"
+import { AnnotationMap } from "@/schema/annotation"
 import { Button } from "@mui/material"
 import { useState } from "react"
 
-export const SaveJsonButton = () => {
+export const AnnotationSaveButton = () => {
     const [isSaving, setIsSaving] = useState<boolean>(false)
 
     const [saveStatus, setSaveStatus] = useState<{
@@ -12,13 +12,9 @@ export const SaveJsonButton = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const [annotations, setAnnotations] = useState<{
-        [key: string]: Annotation[]
-    }>({})
+    const [annotations, setAnnotations] = useState<AnnotationMap>({})
 
-    const saveAnnotationsData = async (annotations: {
-        [key: string]: Annotation[]
-    }) => {
+    const saveAnnotationsData = async (annotations: AnnotationMap) => {
         // 画像IDごとにグループ化されたアノテーションを配列に変換
         const imageIds = Object.keys(annotations)
         const annotationsArray = imageIds.map(
@@ -44,10 +40,6 @@ export const SaveJsonButton = () => {
             const result = await response.json()
             return result
         } catch (error) {
-            console.error(
-                "アノテーションの保存中にエラーが発生しました:",
-                error
-            )
             throw error
         }
     }

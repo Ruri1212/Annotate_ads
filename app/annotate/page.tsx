@@ -3,10 +3,9 @@
 import { AnnotationCanvas } from "@/components/AnnotationCanvas"
 import { ImageSelector } from "@/components/ImageSelector"
 import { LabelSelector } from "@/components/LabelSelector"
-import { loadAnnotationsData } from "@/utils/annotation"
+import { loadAnnotationsData, saveAnnotationsData } from "@/utils/annotation"
+import Link from "next/link"
 import { useEffect, useState } from "react"
-
-import { Header } from "@/components/home/header"
 
 interface Annotation {
     bbox: [number, number, number, number] // [x, y, width, height]
@@ -107,6 +106,41 @@ export default function AnnotatePage() {
         })
     }
 
+    // アノテーションデータ保存ハンドラー
+    const handleSaveAnnotations = async () => {
+        if (Object.keys(annotations).length === 0) {
+            setSaveStatus({
+                type: "error",
+                message: "アノテーションデータがありません。",
+            })
+            return
+        }
+
+        setIsSaving(true)
+        setSaveStatus({ type: null, message: null })
+
+        try {
+            const result = await saveAnnotationsData(annotations)
+
+            setSaveStatus({
+                type: "success",
+                message:
+                    result.message ||
+                    "アノテーションデータが正常に保存されました。",
+            })
+        } catch (error) {
+            setSaveStatus({
+                type: "error",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "アノテーションデータの保存中にエラーが発生しました。",
+            })
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
     // 現在選択されている画像のアノテーション取得
     const currentAnnotations = selectedImage
         ? annotations[selectedImage] || []
@@ -114,8 +148,57 @@ export default function AnnotatePage() {
 
     return (
         <div className="flex flex-col space-y-6">
-            <Header />
-            {/* アノテーション保存ボタン */}
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-bold">広告アノテーションツール</h1>
+                <Link href="/" className="text-blue-600 hover:underline">
+                    ホームに戻る
+                </Link>
+            </div>
+
+            <div className="bg-white shadow-md rounded p-6">
+                <p className="text-gray-600 mb-4">
+                    このページでは広告画像のアノテーションを行います。ラベルを選択し、画像上で領域を指定してアノテーションを追加してください。
+                </p>
+
+                {/* アノテーション保存ボタン */}
+                <div className="mt-4 flex items-center space-x-4">
+                    <button
+                        onClick={handleSaveAnnotations}
+                        disabled={
+                            isSaving ||
+                            isLoading ||
+                            Object.keys(annotations).length === 0
+                        }
+                        className={`px-4 py-2 rounded font-medium transition ${
+                            isSaving ||
+                            isLoading ||
+                            Object.keys(annotations).length === 0
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-green-500 text-white hover:bg-green-600"
+                        }`}
+                    >
+                        {isSaving ? "保存中..." : "アノテーションデータを保存"}
+                    </button>
+
+                    {isLoading && (
+                        <span className="text-gray-500">
+                            アノテーションデータを読み込み中...
+                        </span>
+                    )}
+
+                    {saveStatus.message && (
+                        <span
+                            className={`text-sm ${
+                                saveStatus.type === "success"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                            }`}
+                        >
+                            {saveStatus.message}
+                        </span>
+                    )}
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* 左側: 画像選択と ラベル選択 エリア */}
@@ -157,8 +240,7 @@ export default function AnnotatePage() {
                                         <span className="font-medium">
                                             領域:
                                         </span>{" "}
-                                        X=
-                                        {annotation.bbox[0]}, Y=
+                                        X={annotation.bbox[0]}, Y=
                                         {annotation.bbox[1]}, 幅=
                                         {annotation.bbox[2]}, 高さ=
                                         {annotation.bbox[3]}
