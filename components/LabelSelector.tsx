@@ -1,13 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-// Label category interface matching the structure in sample_annotation.json
-interface LabelCategory {
-  id: number;
-  name: string;
-  supercategory: string;
-}
+import { LabelCategory } from '../types/annotation';
+import { DEFAULT_CATEGORIES, LABEL_BORDER_COLORS } from '../constants/labels';
 
 interface LabelSelectorProps {
   onLabelSelect: (categoryId: number) => void;
@@ -24,17 +19,9 @@ export const LabelSelector = ({ onLabelSelect, selectedLabel }: LabelSelectorPro
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        // Note: In a real application, we would fetch this from an API
-        // For now, we'll hardcode the categories from sample_annotation.json
-        const hardcodedCategories: LabelCategory[] = [
-          { id: 1, name: "Logo", supercategory: "Logo" },
-          { id: 2, name: "Text", supercategory: "Text" },
-          { id: 3, name: "Background", supercategory: "Background" },
-          { id: 4, name: "Symbol Element", supercategory: "Symbol Element" },
-          { id: 5, name: "Emphasized Text", supercategory: "Emphasized Text" }
-        ];
-        
-        setCategories(hardcodedCategories);
+        // 実際のアプリケーションではAPIからカテゴリを取得するが、
+        // ここではハードコードしたカテゴリを使用
+        setCategories(DEFAULT_CATEGORIES);
         setError(null);
       } catch (err) {
         setError('ラベルカテゴリの読み込みに失敗しました');
@@ -70,9 +57,15 @@ export const LabelSelector = ({ onLabelSelect, selectedLabel }: LabelSelectorPro
             onClick={() => handleLabelClick(category.id)}
             className={`w-full p-2 rounded text-left ${
               selectedLabel === category.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
+                ? 'border-2 font-bold'
+                : 'border hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: category.color,
+              borderColor: selectedLabel === category.id 
+                ? LABEL_BORDER_COLORS[category.id as keyof typeof LABEL_BORDER_COLORS] 
+                : 'transparent'
+            }}
           >
             <span className="font-medium">{category.name}</span>
             <span className="ml-2 text-sm opacity-75">({category.id})</span>

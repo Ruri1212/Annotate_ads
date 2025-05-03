@@ -19,7 +19,8 @@ interface ImageInfo {
 
 // 画像一覧を取得するGETリクエストハンドラー
 export async function GET() {
-  const imageDirectory = path.join(process.cwd(), 'no_annotated_ads_images');
+  // publicディレクトリ内の画像フォルダへのパスを指定
+  const imageDirectory = path.join(process.cwd(), 'public', 'no_annotated_ads_images');
   
   try {
     // ディレクトリが存在するか確認
