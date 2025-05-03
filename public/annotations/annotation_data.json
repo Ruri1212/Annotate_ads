@@ -1,0 +1,145 @@
+{
+  "annotations": [
+    [
+      {
+        "area": 31776,
+        "bbox": [
+          99.01422119140625,
+          8.18182373046875,
+          331,
+          96
+        ],
+        "category_id": 5,
+        "image_id": 1
+      },
+      {
+        "area": 2812,
+        "bbox": [
+          387.01422119140625,
+          356.18182373046875,
+          74,
+          38
+        ],
+        "category_id": 1,
+        "image_id": 1
+      }
+    ],
+    [
+      {
+        "area": 14792,
+        "bbox": [
+          182.01422119140625,
+          293.18182373046875,
+          172,
+          86
+        ],
+        "category_id": 2,
+        "image_id": 2
+      },
+      {
+        "area": 10428,
+        "bbox": [
+          357.01422119140625,
+          18.18182373046875,
+          66,
+          158
+        ],
+        "category_id": 2,
+        "image_id": 2
+      }
+    ],
+    [
+      {
+        "area": 26013,
+        "bbox": [
+          79.01422119140625,
+          305.63636779785156,
+          377,
+          69
+        ],
+        "category_id": 2,
+        "image_id": 3
+      },
+      {
+        "area": 2784,
+        "bbox": [
+          86.01422119140625,
+          201.18182373046875,
+          58,
+          48
+        ],
+        "category_id": 4,
+        "image_id": 3
+      },
+      {
+        "area": 2632,
+        "bbox": [
+          87.01422119140625,
+          256.18182373046875,
+          56,
+          47
+        ],
+        "category_id": 4,
+        "image_id": 3
+      },
+      {
+        "area": 4757,
+        "bbox": [
+          379.01422119140625,
+          234.18182373046875,
+          71,
+          67
+        ],
+        "category_id": 4,
+        "image_id": 3
+      }
+    ]
+  ],
+  "images": [
+    {
+      "file_name": "mccafe_berry.jpg",
+      "height": 600,
+      "width": 800,
+      "id": 1
+    },
+    {
+      "file_name": "haagen-dazs_tate.jpg",
+      "height": 600,
+      "width": 800,
+      "id": 2
+    },
+    {
+      "file_name": "humberger.jpg",
+      "height": 600,
+      "width": 800,
+      "id": 3
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Logo",
+      "supercategory": "Logo"
+    },
+    {
+      "id": 2,
+      "name": "Text",
+      "supercategory": "Text"
+    },
+    {
+      "id": 3,
+      "name": "Background",
+      "supercategory": "Background"
+    },
+    {
+      "id": 4,
+      "name": "Symbol Element",
+      "supercategory": "Symbol Element"
+    },
+    {
+      "id": 5,
+      "name": "Emphasized Text",
+      "supercategory": "Emphasized Text"
+    }
+  ]
+}

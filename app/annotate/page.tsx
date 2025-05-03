@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ImageSelector } from '@/components/ImageSelector';
 import { AnnotationCanvas } from '@/components/AnnotationCanvas';
 import { LabelSelector } from '@/components/LabelSelector';
+import { saveAnnotationsData, loadAnnotationsData } from '@/utils/annotation';
 
 interface Annotation {
   bbox: [number, number, number, number]; // [x, y, width, height]
@@ -18,6 +19,26 @@ export default function AnnotatePage() {
   const [selectedRegion, setSelectedRegion] = useState<{ x: number, y: number, width: number, height: number, area: number } | null>(null);
   const [selectedLabel, setSelectedLabel] = useState<number | null>(null);
   const [annotations, setAnnotations] = useState<{ [key: string]: Annotation[] }>({});
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveStatus, setSaveStatus] = useState<{ type: 'success' | 'error' | null, message: string | null }>({ type: null, message: null });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // ページロード時に保存されたアノテーションを読み込む
+  useEffect(() => {
+    const fetchAnnotations = async () => {
+      setIsLoading(true);
+      try {
+        const loadedAnnotations = await loadAnnotationsData();
+        setAnnotations(loadedAnnotations);
+      } catch (error) {
+        console.error('アノテーションの読み込みに失敗しました:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnotations();
+  }, []);
 
   // 画像選択ハンドラー
   const handleImageSelect = (imageId: string, imagePath: string) => {
@@ -66,6 +87,36 @@ export default function AnnotatePage() {
     });
   };
 
+  // アノテーションデータ保存ハンドラー
+  const handleSaveAnnotations = async () => {
+    if (Object.keys(annotations).length === 0) {
+      setSaveStatus({
+        type: 'error',
+        message: 'アノテーションデータがありません。'
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveStatus({ type: null, message: null });
+
+    try {
+      const result = await saveAnnotationsData(annotations);
+      
+      setSaveStatus({
+        type: 'success',
+        message: result.message || 'アノテーションデータが正常に保存されました。'
+      });
+    } catch (error) {
+      setSaveStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'アノテーションデータの保存中にエラーが発生しました。'
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // 現在選択されている画像のアノテーション取得
   const currentAnnotations = selectedImage ? (annotations[selectedImage] || []) : [];
 
@@ -82,6 +133,33 @@ export default function AnnotatePage() {
         <p className="text-gray-600 mb-4">
           このページでは広告画像のアノテーションを行います。ラベルを選択し、画像上で領域を指定してアノテーションを追加してください。
         </p>
+
+        {/* アノテーション保存ボタン */}
+        <div className="mt-4 flex items-center space-x-4">
+          <button
+            onClick={handleSaveAnnotations}
+            disabled={isSaving || isLoading || Object.keys(annotations).length === 0}
+            className={`px-4 py-2 rounded font-medium transition ${
+              isSaving || isLoading || Object.keys(annotations).length === 0
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            }`}
+          >
+            {isSaving ? '保存中...' : 'アノテーションデータを保存'}
+          </button>
+          
+          {isLoading && <span className="text-gray-500">アノテーションデータを読み込み中...</span>}
+          
+          {saveStatus.message && (
+            <span 
+              className={`text-sm ${
+                saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {saveStatus.message}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
