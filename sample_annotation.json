@@ -1,0 +1,203 @@
+{
+    "annotations": [
+        [
+            {
+                "area": 68616,
+                "bbox": [
+                    14,
+                    11,
+                    953,
+                    72
+                ],
+                "category_id": 2,
+                "image_id": 1
+            },
+            {
+                "area": 176800,
+                "bbox": [
+                    98,
+                    113,
+                    800,
+                    221
+                ],
+                "category_id": 2,
+                "image_id": 1
+            },
+            {
+                "area": 135720,
+                "bbox": [
+                    603,
+                    442,
+                    348,
+                    390
+                ],
+                "category_id": 5,
+                "image_id": 1
+            },
+            {
+                "area": 40716,
+                "bbox": [
+                    106,
+                    940,
+                    783,
+                    52
+                ],
+                "category_id": 5,
+                "image_id": 1
+            }
+        ],
+        [
+            {
+                "area": 82482,
+                "bbox": [
+                    928,
+                    101,
+                    177,
+                    466
+                ],
+                "category_id": 2,
+                "image_id": 2
+            },
+            {
+                "area": 133110,
+                "bbox": [
+                    354,
+                    1020,
+                    493,
+                    270
+                ],
+                "category_id": 2,
+                "image_id": 2
+            }
+        ],
+        [
+            {
+                "area": 9900,
+                "bbox": [
+                    87,
+                    622,
+                    100,
+                    99
+                ],
+                "category_id": 4,
+                "image_id": 3
+            },
+            {
+                "area": 26352,
+                "bbox": [
+                    969,
+                    744,
+                    183,
+                    144
+                ],
+                "category_id": 5,
+                "image_id": 3
+            },
+            {
+                "area": 14805,
+                "bbox": [
+                    82,
+                    793,
+                    141,
+                    105
+                ],
+                "category_id": 4,
+                "image_id": 3
+            },
+            {
+                "area": 150360,
+                "bbox": [
+                    72,
+                    928,
+                    1074,
+                    140
+                ],
+                "category_id": 2,
+                "image_id": 3
+            },
+            {
+                "area": 21707,
+                "bbox": [
+                    73,
+                    1062,
+                    443,
+                    49
+                ],
+                "category_id": 2,
+                "image_id": 3
+            }
+        ],
+        [
+            {
+                "area": 28194,
+                "bbox": [
+                    190,
+                    696,
+                    222,
+                    127
+                ],
+                "category_id": 4,
+                "image_id": 4
+            },
+            {
+                "area": 47167,
+                "bbox": [
+                    385,
+                    847,
+                    467,
+                    101
+                ],
+                "category_id": 2,
+                "image_id": 4
+            },
+            {
+                "area": 83776,
+                "bbox": [
+                    333,
+                    954,
+                    544,
+                    154
+                ],
+                "category_id": 2,
+                "image_id": 4
+            },
+            {
+                "area": 54272,
+                "bbox": [
+                    162,
+                    1138,
+                    1024,
+                    53
+                ],
+                "category_id": 2,
+                "image_id": 4
+            },
+            {
+                "area": 19950,
+                "bbox": [
+                    877,
+                    864,
+                    150,
+                    133
+                ],
+                "category_id": 1,
+                "image_id": 4
+            }
+        ]
+    ],
+    "images": 
+    [
+        {"file_name": "beer_many_characters.jpg", "height": 994, "width": 984, "id": 1},
+        {"file_name": "haagen-dazs_tate.jpg", "height": 1350, "width": 1200, "id": 2},
+        {"file_name": "humberger.jpg", "height": 1200, "width": 1200, "id": 3},
+        {"file_name": "mattya.jpg", "height": 1200, "width": 1200, "id": 4}
+    ],
+    "categories": 
+    [
+        { "supercategory": "Logo",            "id": 1, "name": "Logo"           },
+        { "supercategory": "Text",            "id": 2, "name": "Text"           },
+        { "supercategory": "Background",      "id": 3, "name": "Background"     },
+        { "supercategory": "Symbol Element",  "id": 4, "name": "Symbol Element" },
+        { "supercategory": "Emphasized Text","id": 5, "name": "Emphasized Text"}
+    ]
+}
