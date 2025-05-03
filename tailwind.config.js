@@ -9,4 +9,7 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  corePlugins: {
+    preflight: false, // MUIとの競合を避けるためpreflightを無効化
+  },
 };
