@@ -1,7 +1,7 @@
 "use client"
 
 import { DEFAULT_CATEGORIES, LABEL_BORDER_COLORS } from "@/constants/labels"
-import { LabelCategory } from "@/types/annotation"
+import { LabelCategory } from "@/schema/annotation"
 import {
     Alert,
     Box,

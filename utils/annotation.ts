@@ -1,4 +1,4 @@
-import { Annotation } from '../types/annotation';
+import { Annotation } from '../schema/annotation';
 import { LABEL_COLORS, LABEL_BORDER_COLORS, LABEL_NAMES } from '../constants/labels';
 
 /**

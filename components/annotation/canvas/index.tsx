@@ -1,6 +1,6 @@
 "use client"
 
-import { Annotation, ImageMetadata, SelectedRegion } from "@/types/annotation"
+import { Annotation, ImageMetadata, SelectedRegion } from "@/schema/annotation"
 import { calculateImageDimensions } from "@/utils/annotation"
 import { Alert, Box, Card, CircularProgress, Typography } from "@mui/material"
 import { useEffect, useState } from "react"

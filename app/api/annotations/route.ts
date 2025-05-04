@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 import { DEFAULT_CATEGORIES } from '@/constants/labels';
-import { Annotation } from '@/types/annotation';
+import { Annotation } from '@/schema/annotation';
 
 // ファイルシステムにJSONを保存するヘルパー関数
 async function saveJSONToFile(filePath: string, data: any) {

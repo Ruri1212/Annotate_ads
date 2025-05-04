@@ -1,6 +1,6 @@
 "use client"
 
-import { Annotation, SelectedRegion } from "@/types/annotation"
+import { Annotation, SelectedRegion } from "@/schema/annotation"
 import {
     getLabelBorderColor,
     getLabelColor,

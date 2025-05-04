@@ -1,6 +1,6 @@
 "use client"
 
-import { Annotation } from "@/types/annotation"
+import { Annotation } from "@/schema/annotation"
 import {
     getLabelBorderColor,
     getLabelColor,
