@@ -5,7 +5,7 @@ import {
     getLabelBorderColor,
     getLabelColor,
     getLabelName,
-} from "@/utils/annotation"
+} from "@/utils/client/label"
 import { Box } from "@mui/material"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"

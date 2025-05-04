@@ -4,7 +4,7 @@ import {
     getLabelBorderColor,
     getLabelColor,
     getLabelName,
-} from "@/utils/annotation"
+} from "@/utils/client/label"
 import { Paper, Typography } from "@mui/material"
 
 interface SelectedLabelInfoProps {

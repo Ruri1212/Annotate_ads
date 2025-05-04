@@ -1,25 +1,8 @@
-// filepath: /Users/inoue/MISK/Annotate_ads/app/api/annotations/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
 import path from 'path';
 import { DEFAULT_CATEGORIES } from '@/constants/labels';
 import { Annotation } from '@/schema/annotation';
-
-// ファイルシステムにJSONを保存するヘルパー関数
-async function saveJSONToFile(filePath: string, data: any) {
-  try {
-    // ディレクトリが存在するか確認、なければ作成
-    const directory = path.dirname(filePath);
-    await fs.mkdir(directory, { recursive: true });
-    
-    // データをJSONとして書き込み
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('JSONファイルの保存中にエラーが発生しました:', error);
-    return false;
-  }
-}
+import { saveJSONToFile, readJSONFile } from '@/utils/server/file';
 
 // POSTリクエストハンドラー - アノテーションデータを保存
 export async function POST(request: NextRequest) {
@@ -115,26 +98,18 @@ export async function GET() {
   try {
     const filePath = path.join(process.cwd(), 'public', 'annotations', 'annotation_data.json');
     
-    try {
-      // ファイルが存在するか確認
-      await fs.access(filePath);
-    } catch {
-      // ファイルが存在しない場合は空のデータを返す
-      return NextResponse.json({
-        annotations: [],
-        images: [],
-        categories: DEFAULT_CATEGORIES.map(({ id, name, supercategory }) => ({
-          id,
-          name,
-          supercategory
-        }))
-      });
-    }
+    // 新しいutility関数を使用してJSONファイルを読み込む
+    const defaultData = {
+      annotations: [],
+      images: [],
+      categories: DEFAULT_CATEGORIES.map(({ id, name, supercategory }) => ({
+        id,
+        name,
+        supercategory
+      }))
+    };
     
-    // ファイルからデータを読み込む
-    const data = await fs.readFile(filePath, 'utf-8');
-    const annotationData = JSON.parse(data);
-    
+    const annotationData = await readJSONFile(filePath, defaultData);
     return NextResponse.json(annotationData);
   } catch (error) {
     console.error('アノテーションデータの取得中にエラーが発生しました:', error);

@@ -1,7 +1,7 @@
 "use client"
 
 import { Annotation, ImageMetadata, SelectedRegion } from "@/schema/annotation"
-import { calculateImageDimensions } from "@/utils/annotation"
+import { calculateImageDimensions } from "@/utils/client/image"
 import { Alert, Box, Card, CircularProgress, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
 import DrawingCanvas from "../canvas/drawing"

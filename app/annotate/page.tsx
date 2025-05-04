@@ -6,7 +6,7 @@ import Button from "@/components/common/button"
 import Loading from "@/components/common/loading"
 import ImageGallery from "@/components/image/gallery"
 import { Annotation, SelectedRegion } from "@/schema/annotation"
-import { loadAnnotationsData, saveAnnotationsData } from "@/utils/annotation"
+import { loadAnnotationsData, saveAnnotationsData } from "@/utils/client/api"
 import {
     Alert,
     Box,
